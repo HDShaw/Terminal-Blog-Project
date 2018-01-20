@@ -1,5 +1,6 @@
 from database import Database
 from models.blog import Blog
+from models.post import Post
 
 __author__="Huidan Xiao"
 
@@ -13,7 +14,7 @@ class Menu(object):
        if self._user_has_account():
            print("welcome back {}".format(self.user))
        else:
-           self._prompt_user_for_account()
+           self._promt_user_for_account()
 
     def _user_has_account(self):
         blog=Database.find_one("blogs",{"author":self.user})
@@ -45,10 +46,24 @@ class Menu(object):
 
         read_or_write = input("do you want to read(R) or write(W) blogs?")
         if read_or_write=="R":
-            pass
+            self._list_blogs()
+            self._view_blog()
         elif read_or_write=="W":
-            pass
+            self.user_blog.new_post()
         else:
             print("thank you for logging!")
 
-        pass
+    def _list_blogs(self):
+        blogs=Database.find(collection="blogs",query={})
+        for blog in blogs:
+            print("ID:{},Title:{},Author:{}".format(blog["id"],blog["title"],blog["author"]))
+
+    def _view_blog(self):
+        blog_to_see=input("please enter the id of the blog you would like to see:")
+        blog=Blog.get_from_mongo(blog_to_see)
+        posts=blog.get_posts()
+        for post in posts:
+            print("Date:{},title:{},\ncontent:{}".format(post["createdDate"],post["title"],post["content"]))
+
+
+
